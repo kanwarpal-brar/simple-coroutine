@@ -5,7 +5,8 @@ FROM alpine:latest
 RUN apk update && apk add --no-cache \
     build-base \
     boost-dev \
-    git
+    git \
+    openssh
 
 # Set the working directory
 WORKDIR /workspace
