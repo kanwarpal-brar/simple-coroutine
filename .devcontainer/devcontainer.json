@@ -3,7 +3,11 @@
   
     "customizations": {
       "vscode": {
-        "extensions": ["dbaeumer.vscode-eslint"]
+        "extensions": [
+            "dbaeumer.vscode-eslint",
+            "ms-vscode.cpptools-extension-pack",
+            "ms-vscode.makefile-tools"
+        ]
       }
     },
   
