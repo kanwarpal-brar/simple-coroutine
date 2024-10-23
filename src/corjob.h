@@ -1,0 +1,3 @@
+struct CorJob {
+    int a;
+};
