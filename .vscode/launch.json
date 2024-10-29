@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "name": "(gdb) Debug Demo Attach",
+            "type": "cppdbg",
+            "request": "attach",
+            "program": "${workspaceFolder}/demo",
+            "MIMode": "gdb"
+        },
+        {
+            "name": "(gdb) Debug Demo Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/demo",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+        }
+    ],
+    "version": "2.0.0"
+}

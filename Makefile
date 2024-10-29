@@ -1,8 +1,11 @@
 # Compiler
 CXX = g++
-CXXFLAGS = -std=c++20 -I/usr/include/boost -MMD -MP
+CXXFLAGS = -std=c++20 -I/usr/include/boost -MMD -MP -g
 
-# Source directory
+# Linker flags
+LDFLAGS = -lboost_system -lboost_context
+
+# Source directorys
 SRC_DIR = src
 
 # Build directory
@@ -22,7 +25,7 @@ TARGET = demo
 
 # Rule to build the target executable
 $(TARGET): $(OBJS)
-	 $(CXX) $(CXXFLAGS) -o $@ $^
+	 $(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 # Rule to compile source files into object files
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cc | $(BUILD_DIR)
