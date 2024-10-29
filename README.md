@@ -1,2 +1,2 @@
 # simple-coroutine
-Basic Coroutine library based on context switching
+Basic Coroutine library based using Boost Context.
