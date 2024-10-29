@@ -3,7 +3,8 @@
 
 int main() {
     CorJob job;
-    job.a = 10;
-    std::cout << "Hello " << job.a << std::endl;
-    return 0;
+    std::cout << "back to main" << std::endl;
+    std::cout << "isdone1: " << job.is_done() << std::endl;
+    job();
+    std::cout << "isdone2: " << job.is_done() << std::endl;
 }
