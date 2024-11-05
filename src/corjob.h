@@ -9,23 +9,52 @@ int BASEID = 0;
 class CorJob  {
     ctx::continuation cont;
     CorJob* companion = nullptr;
+    ctx::continuation sink_val = ctx::continuation{};
     bool finished = false;
     int id = BASEID++;
 
   protected:
-    ctx::continuation&& main(ctx::continuation&& sink) {
+    void main() {
+      std::cout << "Coroutine Initied" << std::endl;
       // TODO: needs wrapper
       // override this method
       std::cout << "1" << std::endl;
-      sink=sink.resume();
+      suspend();
       std::cout << "2" << std::endl;
-
+      suspend();
+      std::cout << "3" << std::endl;
       // invalidate parent's ptr to self on end
-      companion->companion=nullptr; // TODO: put in wrapper
-      return std::move(sink);
+    }
+
+    ctx::continuation&& bootstrap(ctx::continuation&& sink) {
+      std::cout << "Entered Bootstrap" << std::endl;
+      sink_val = std::move(sink);
+      main();
+      companion->set_finished();
+      return std::move(sink_val);
     }
 
   private:
+
+    void set_finished() {
+      // meant to be triggered by companion
+      finished = true;
+      companion = nullptr;
+    }
+
+    void resume() {
+      std::cout << "resume() enter" << std::endl;
+      if (is_done()) throw CorJobFinishedException();
+      ctx::continuation c = companion->cont.resume();
+      if (!is_done()) companion->cont = std::move(c);
+      std::cout << "resume() exit" << std::endl;
+    }
+
+    void suspend() {
+      std::cout << "Suspending" << std::endl;
+      sink_val = std::move(sink_val.resume());
+      std::cout << "Back from Suspension" << std::endl;
+    }
 
     // New Stack Companion CorJob
     template< typename StackAllocator >
@@ -34,10 +63,9 @@ class CorJob  {
         std::allocator_arg,
         ctx::preallocated(stk_ptr, size, sctx),
         salloc,
-        std::bind(&CorJob::main, this, std::placeholders::_1)
-        // std::bind(&CorJob::bootstrap, std::placeholders::_1, this)
-      ); // bootstrap needs access to the callcc stack-top object ptr
-      std::cout << "exited const" << std::endl;
+        std::bind(&CorJob::bootstrap, this, std::placeholders::_1)
+      );
+      std::cout << "exited callcc" << std::endl;
   }
 
     void init_stack() {
@@ -53,38 +81,25 @@ class CorJob  {
 
       // place new mirror CorJob on stack, pass self as companion
       companion=new(stk_ptr)CorJob(stk_ptr, size, sctx, salloc, this);
+
+      std::cout << "exited init" << std::endl;
     }
 
   public:
 
     bool is_done() {
-      // TODO: handle setting self to finished
-      if (!finished && companion != nullptr) {
-          return companion->is_done();
-      }
-      return finished;
-      // return companion->is_done() ? companion != nullptr : finished;
+      return finished || companion == nullptr;
     }
 
     CorJob() {
       init_stack();
     }
 
+    class CorJobFinishedException : public std::exception {};
+
     void operator()() {
-      // TODO: need a way to handle when companion is finished, and in that case do not re-resume
-      std::cout << "retry" << std::endl;
-      ctx::continuation && c = companion->cont.resume();
-      std::cout << "resumed: " << companion << std::endl;
-      if (companion != nullptr && c) {  // Check if continuation is valid
-            companion->cont = std::move(c);
-      }
-      std::cout << "exited" << std::endl;
+      std::cout << "operator()() enter" << std::endl;
+      resume();
+      std::cout << "operator()() exit" << std::endl;
     }
 };
-
-
-
-ctx::continuation&& foo(ctx::continuation&& sink) {
-    std::cout << "2" << std::endl;
-    return sink.resume();
-}
