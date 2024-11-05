@@ -1,3 +1,6 @@
+#ifndef CORJOB_H
+#define CORJOB_H
+
 #include "boost/context/continuation.hpp"
 #include <boost/context/fixedsize_stack.hpp>
 #include <iostream>
@@ -16,19 +19,17 @@ class CorJob  {
   protected:
     void main() {
       std::cout << "Coroutine Initied" << std::endl;
-      // TODO: needs wrapper
-      // override this method
       std::cout << "1" << std::endl;
       suspend();
       std::cout << "2" << std::endl;
       suspend();
       std::cout << "3" << std::endl;
-      // invalidate parent's ptr to self on end
     }
 
     ctx::continuation&& bootstrap(ctx::continuation&& sink) {
       std::cout << "Entered Bootstrap" << std::endl;
       sink_val = std::move(sink);
+      suspend(); // initial suspend
       main();
       companion->set_finished();
       return std::move(sink_val);
@@ -37,14 +38,13 @@ class CorJob  {
   private:
 
     void set_finished() {
-      // meant to be triggered by companion
       finished = true;
       companion = nullptr;
     }
 
     void resume() {
       std::cout << "resume() enter" << std::endl;
-      if (is_done()) throw CorJobFinishedException();
+      if (is_done()) throw FinishedException();
       ctx::continuation c = companion->cont.resume();
       if (!is_done()) companion->cont = std::move(c);
       std::cout << "resume() exit" << std::endl;
@@ -95,7 +95,7 @@ class CorJob  {
       init_stack();
     }
 
-    class CorJobFinishedException : public std::exception {};
+    class FinishedException : public std::exception {};
 
     void operator()() {
       std::cout << "operator()() enter" << std::endl;
@@ -103,3 +103,5 @@ class CorJob  {
       std::cout << "operator()() exit" << std::endl;
     }
 };
+
+#endif

@@ -10,7 +10,7 @@ int main() {
         std::cout << "isdone2: " << job.is_done() << std::endl;
         job();
         job();
-    } catch (CorJob::CorJobFinishedException& e) {
+    } catch (CorJob::FinishedException& e) {
         std::cout << "Caught CorJobFinishedException" << std::endl;
     }
 }
