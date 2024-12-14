@@ -1,2 +1,2 @@
 # simple-coroutine
-Basic Coroutine library based using Boost Context.
+Basic Coroutine library using Boost Context for callcc context switching.
