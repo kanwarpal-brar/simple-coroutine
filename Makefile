@@ -1,6 +1,6 @@
 # Compiler
 CXX = g++
-CXXFLAGS = -std=c++20 -I/usr/include/boost -MMD -MP -g -O1
+CXXFLAGS = -std=c++20 -I/usr/include/boost -MMD -MP -g -DCORJOB_DEBUG
 
 # Linker flags
 LDFLAGS = -lboost_system -lboost_context
