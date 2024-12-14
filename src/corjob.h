@@ -166,7 +166,7 @@ class Coroutine {
       coroutine=new(stk_ptr)T(std::forward<Args>(args)...);
 
       /*
-      TODO: below operation is expense but I don't know how to avoid it
+      TODO: below operation is expensive but I don't know how to avoid it
         maybe there's some way to pass an additional arg to the bootstrap?
       */ 
       coroutine->set_parent((Coroutine<BaseCoroutine>*)this);
