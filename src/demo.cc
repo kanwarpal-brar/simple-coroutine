@@ -1,7 +1,8 @@
 #include <iostream>
 #include "corjob.h"
+#include "node.h"
 
-int main() {
+void basic() {
     try {
         CorJob job;
         job();
@@ -9,6 +10,22 @@ int main() {
         job();
         job();
     } catch (CorJob::FinishedException& e) {
-        std::cout << "Caught CorJobFinishedException" << std::endl;
+        std::cout << "Caught FinishedException" << std::endl;
     }
+}
+
+void node() {
+    try {
+        Coroutine<Node> root = Coroutine<Node>(3);
+        root();
+        root();
+        root();
+        root();
+    } catch (Node::FinishedException& e) {
+        std::cout << "Caught FinishedException" << std::endl;
+    }
+}
+
+int main() {
+    node();
 }
