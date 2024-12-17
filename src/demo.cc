@@ -22,6 +22,8 @@ void node() {
         while (!root.is_finished()) {
             root();
         }
+        std::cout << "Anticipating Error------" << std::endl;
+        root();  // Should error:
     } catch (Coroutine<Node>::FinishedException& e) {
         std::cout << "Caught FinishedException" << std::endl;
     }
@@ -30,8 +32,9 @@ void node() {
 void creation() {
     Coroutine<SimpleCoroutine> cor = Coroutine<SimpleCoroutine>();
     cor();
+    cor();
 }
 
 int main() {
-    creation();
+    node();
 }
