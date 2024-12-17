@@ -31,3 +31,9 @@
 *.out
 *.app
 demo
+
+# Benchmark executables
+benchmark/executables/**
+
+# Benchmark Results
+benchmark/results/**
