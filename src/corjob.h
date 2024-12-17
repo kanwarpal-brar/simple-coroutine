@@ -128,9 +128,13 @@ class Coroutine {
     class FinishedException : public std::exception {};  // Thrown when attempting to resume a terminated coroutine
 
   private:
+    bool started = false;  // Indicator of coroutine start
     bool finished = false;  // Indicator of coroutine completion
     T* coroutine = nullptr;  // Pointer to actual coroutine object matching T
-    ctx::continuation coroutine_ctx;  // Context of coroutine
+
+    // TODO: can I use a pointer to delay initialization here?
+    ctx::continuation coroutine_ctx = ctx::continuation{};  // Context of coroutine
+    std::function<void()> init_coroutine_ctx;  // Function to initialize coroutine context
 
     friend class BaseCoroutine;  // Required for internal set_finished() access
 
@@ -150,6 +154,14 @@ class Coroutine {
       ctx::continuation c = coroutine_ctx.resume();
       if (!finished) coroutine_ctx = std::move(c);
       PRINT("Coroutine::resume() exit");
+    }
+
+    /*
+    Used internally to delay coroutine initialization until first resume
+    */
+    void init_ctx() {
+      started = true;
+      init_coroutine_ctx();
     }
 
   public:
@@ -179,13 +191,18 @@ class Coroutine {
       */ 
       coroutine->set_parent((Coroutine<BaseCoroutine>*)this);
 
-      // start coroutine context:
-      coroutine_ctx=ctx::callcc(
-        std::allocator_arg,
-        ctx::preallocated(stk_ptr, size, sctx),
-        salloc,
-        std::bind(&T::bootstrap, coroutine, std::placeholders::_1)
-      );
+      // save the coroutine context initialization to be called later
+      auto init_coroutine_ctx = [this, stk_ptr, size, sctx, salloc]() {
+        coroutine_ctx = ctx::callcc(
+          std::allocator_arg,
+          ctx::preallocated(stk_ptr, size, sctx),
+          salloc,
+          std::bind(&T::bootstrap, coroutine, std::placeholders::_1)
+        );
+      };
+
+      // store the lambda for later use
+      this->init_coroutine_ctx = init_coroutine_ctx;
 
       PRINT("exited Coroutine construct");
     }
@@ -231,7 +248,6 @@ class BaseCoroutine {
     ctx::continuation &&bootstrap(ctx::continuation &&caller_ctx) {
       PRINT("Entered Bootstrap");
       caller = std::move(caller_ctx);
-      suspend(); // initial suspend
       main();
       parent->set_finished();
       return std::move(caller);

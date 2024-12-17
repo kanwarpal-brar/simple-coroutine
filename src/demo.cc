@@ -1,6 +1,8 @@
 #include <iostream>
 #include "corjob.h"
 #include "node.h"
+#include <chrono>
+#include "simple_coroutine.h"
 
 void basic() {
     try {
@@ -25,6 +27,11 @@ void node() {
     }
 }
 
+void creation() {
+    Coroutine<SimpleCoroutine> cor = Coroutine<SimpleCoroutine>();
+    cor();
+}
+
 int main() {
-    node();
+    creation();
 }
