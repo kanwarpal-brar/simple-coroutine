@@ -102,7 +102,12 @@ class CorJob  {
       init_stack();
     }
 
-    class FinishedException : public std::exception {};  // Thrown when attempting to resume a terminated coroutine
+    // Thrown when attempting to resume a finished Coroutine
+    struct FinishedException : public std::exception {
+      const char* what() const noexcept override {
+        return "Attempted to resume a terminated coroutine";
+      }
+    };
 
 
     void operator()() {
@@ -119,6 +124,9 @@ concept BaseCoroutineType = std::is_base_of<BaseCoroutine, T>::value;
 
 template <BaseCoroutineType T>
 class Coroutine {
+  public:
+    class FinishedException : public std::exception {};  // Thrown when attempting to resume a terminated coroutine
+
   private:
     bool finished = false;  // Indicator of coroutine completion
     T* coroutine = nullptr;  // Pointer to actual coroutine object matching T
@@ -138,7 +146,7 @@ class Coroutine {
     */
     void resume() {
       PRINT("Coroutine::resume() enter");
-      if (finished) throw typename T::FinishedException();
+      if (finished) throw typename Coroutine::FinishedException();
       ctx::continuation c = coroutine_ctx.resume();
       if (!finished) coroutine_ctx = std::move(c);
       PRINT("Coroutine::resume() exit");
@@ -197,6 +205,7 @@ class Coroutine {
       resume();
       PRINT("operator()() exit");
     }
+
 };
 
 /*
@@ -244,9 +253,6 @@ class BaseCoroutine {
       caller = std::move(caller.resume());
       PRINT("Back from Suspension");
     }
-
-  public:
-    class FinishedException : public std::exception {};  // Thrown when attempting to resume a terminated coroutine
 };
 
 
