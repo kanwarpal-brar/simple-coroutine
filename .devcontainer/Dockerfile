@@ -8,10 +8,11 @@ RUN apk update && apk add --no-cache \
     git \
     openssh \
     gdb \
-    valgrind
+    valgrind \
+    bash
 
 # Set the working directory
 WORKDIR /workspace
 
 # Default command
-CMD ["/bin/sh"]
+CMD ["/bin/bash"]
