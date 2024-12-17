@@ -17,11 +17,10 @@ void basic() {
 void node() {
     try {
         Coroutine<Node> root = Coroutine<Node>(3);
-        root();
-        root();
-        root();
-        root();
-    } catch (Node::FinishedException& e) {
+        while (!root.is_finished()) {
+            root();
+        }
+    } catch (Coroutine<Node>::FinishedException& e) {
         std::cout << "Caught FinishedException" << std::endl;
     }
 }
