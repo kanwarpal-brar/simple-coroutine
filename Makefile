@@ -64,3 +64,8 @@ all: $(TARGET) $(BENCHMARK_TARGETS)
 
 # Rule to build only benchmark targets
 benchmark: $(BENCHMARK_TARGETS)
+
+# Rule to build and run benchmarks
+run-benchmark:
+	$(MAKE) benchmark
+	./benchmark/run.sh

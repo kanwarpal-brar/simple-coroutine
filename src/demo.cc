@@ -35,6 +35,20 @@ void creation() {
     cor();
 }
 
+class LoopingCoroutine : public BaseCoroutine {
+    int j = 0;
+    void main() override {
+        for (int i = 0; i < INT_MAX; i++) {
+            j++;
+            std::cout << j << std::endl;
+            suspend();
+        }
+    }
+};
+
 int main() {
-    node();
+    Coroutine<LoopingCoroutine> cor = Coroutine<LoopingCoroutine>();  // Create
+    while (!cor.is_finished()) {
+        cor();  // Swap context
+    }
 }
