@@ -150,6 +150,12 @@ class Coroutine {
     */
     void resume() {
       PRINT("Coroutine::resume() enter");
+      if (!started) {
+        // Fifrst start
+        init_ctx();
+        return;
+      }
+
       if (finished) throw typename Coroutine::FinishedException();
       ctx::continuation c = coroutine_ctx.resume();
       if (!finished) coroutine_ctx = std::move(c);
